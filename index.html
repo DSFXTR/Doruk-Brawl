@@ -126,3 +126,97 @@
     </script>
 </body>
 </html>
+<style>
+    /* ... önceki stiller ... */
+    
+    .nav-btn {
+        background: var(--primary-blue);
+        border: none;
+        padding: 10px 25px;
+        border-radius: 8px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 14px;
+        transition: 0.3s;
+    }
+
+    .nav-btn:hover {
+        background: #008ecc;
+        transform: scale(1.1);
+    }
+
+    /* Modal (Tıklayınca açılan pencere) */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #333;
+        padding: 30px;
+        border-radius: 20px;
+        border: 2px solid var(--primary-blue);
+        z-index: 1000;
+        text-align: center;
+    }
+</style> // 101 Karakteri Otomatik Oluşturma ve Buton Fonksiyonları
+
+// Gerçek Brawl Stars ikonlarını çekmek için bir yardımcı fonksiyon
+function getBrawlerImg(name) {
+    // Bazı karakter isimleri görsellerde farklı olabilir, basit bir eşleştirme:
+    return `https://cdn-old.brawlstats.com/character-icons/${name.toLowerCase().replace(/\s/g, '')}.png`;
+}
+
+const brawlers = [
+    { id: 1, name: "Shelly", rarity: "rare" },
+    { id: 2, name: "Colt", rarity: "rare" },
+    { id: 3, name: "Mortis", rarity: "mythic" },
+    { id: 4, name: "Leon", rarity: "legendary" },
+    { id: 5, name: "Spike", rarity: "legendary" },
+    { id: 6, name: "Crow", rarity: "legendary" },
+    { id: 7, name: "Kaze", rarity: "legendary" }, // Özel karakterin
+    { id: 8, name: "Sirius", rarity: "legendary" } // Özel karakterin
+    // Buraya listenin geri kalanını ekleyebilirsin...
+];
+
+const grid = document.getElementById('brawler-grid');
+
+function renderBrawlers() {
+    grid.innerHTML = ""; // Önce temizle
+    brawlers.forEach(brawler => {
+        const card = document.createElement('div');
+        card.className = `brawler-card rarity-${brawler.rarity}`;
+        
+        // Eğer görsel bulunamazsa varsayılan ikon göster
+        const imgSrc = (brawler.name === "Kaze" || brawler.name === "Sirius") 
+            ? "https://via.placeholder.com/80/FFD700/000000?text=?" 
+            : getBrawlerImg(brawler.name);
+
+        card.innerHTML = `
+            <img src="${imgSrc}" style="width:70px; border-radius:10px;" onerror="this.src='https://via.placeholder.com/70?text=BS'">
+            <div style="font-weight: bold; margin-top: 10px;">${brawler.name}</div>
+            <div style="font-size: 10px; color: #aaa;">${brawler.rarity.toUpperCase()}</div>
+        `;
+        
+        card.onclick = () => alert(brawler.name + " savaşa hazır!");
+        grid.appendChild(card);
+    });
+}
+
+// BUTONLARA GÖREV VERME
+function menuTikla(sayfa) {
+    if(sayfa === 'OYNA') {
+        alert("Oyun Başlıyor... Eşleşme Aranıyor!");
+    } else if(sayfa === 'MARKET') {
+        alert("Market şu an kapalı, yakında yeni skinler gelecek!");
+    } else {
+        alert(sayfa + " sayfası yakında aktif olacak.");
+    }
+}
+
+// HTML'deki butonlara bu fonksiyonu bağlamalısın:
+// Örnek: <button class="nav-btn" onclick="menuTikla('MARKET')">MARKET</button>
+
+document.addEventListener('DOMContentLoaded', renderBrawlers);
+
