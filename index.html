@@ -8,138 +8,122 @@
         :root {
             --primary-blue: #00BFFF;
             --legendary-gold: #FFD700;
-            --mythic-red: #FF4500;
-            --rare-green: #32CD32;
             --dark-bg: #121212;
             --card-bg: #1E1E1E;
         }
 
-        body {
-            margin: 0;
-            font-family: 'Arial Black', sans-serif;
-            background-color: var(--dark-bg);
-            color: white;
-            text-align: center;
-        }
+        body { margin: 0; font-family: 'Arial Black', sans-serif; background: var(--dark-bg); color: white; text-align: center; overflow-x: hidden; }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 25px;
-            background: #000;
-            border-bottom: 4px solid var(--primary-blue);
-        }
+        /* Üst Menü */
+        header { display: flex; justify-content: space-between; padding: 15px 25px; background: #000; border-bottom: 4px solid var(--primary-blue); position: sticky; top: 0; z-index: 100; }
 
-        .stats { font-size: 18px; }
+        /* Karakter Kartları */
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; padding: 20px; padding-bottom: 120px; }
+        .brawler-card { background: var(--card-bg); border-radius: 12px; padding: 10px; border: 3px solid #444; transition: 0.2s; cursor: pointer; }
+        .brawler-card:hover { transform: scale(1.1); border-color: var(--primary-blue); }
+        .brawler-card img { width: 70px; height: 70px; border-radius: 8px; }
 
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 15px;
-            padding: 20px;
-            padding-bottom: 100px;
-        }
-
-        .brawler-card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 10px;
-            border: 4px solid #444;
-            transition: 0.2s;
-            cursor: pointer;
-        }
-
-        .brawler-card:hover { transform: scale(1.1); }
-        .rarity-rare { border-color: var(--rare-green); }
-        .rarity-mythic { border-color: var(--mythic-red); }
-        .rarity-legendary { border-color: var(--legendary-gold); }
-
-        .brawler-card img {
-            width: 80px;
-            height: 80px;
-            border-radius: 10px;
-            background: #333;
-        }
-
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            height: 80px;
-            background: rgba(0,0,0,0.9);
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .nav-btn {
-            background: var(--primary-blue);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px #005f8a;
-        }
-
+        /* Alt Navigasyon */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: rgba(0,0,0,0.9); display: flex; justify-content: center; gap: 15px; align-items: center; z-index: 200; }
+        .nav-btn { background: #008ecc; color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; box-shadow: 0 4px #005f8a; transition: 0.1s; }
         .nav-btn:active { transform: translateY(4px); box-shadow: none; }
+        .nav-btn.play { background: #ff4500; box-shadow: 0 4px #b33000; }
+
+        /* Pencereler (Modals) */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
+        .window { background: #222; border: 4px solid var(--primary-blue); padding: 30px; border-radius: 20px; width: 80%; max-width: 400px; position: relative; }
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 25px; cursor: pointer; color: red; }
+        
+        /* Oyna Ekranı Animasyonu */
+        .loading-bar { width: 100%; height: 20px; background: #444; border-radius: 10px; margin-top: 20px; overflow: hidden; }
+        .progress { width: 0%; height: 100%; background: var(--primary-blue); transition: width 3s linear; }
     </style>
 </head>
 <body>
 
     <header>
-        <div style="font-size: 24px; color: var(--legendary-gold);">DORUK STARS</div>
-        <div class="stats">🏆 250 | 💎 50</div>
+        <div style="font-size: 22px; color: var(--legendary-gold);">DORUK STARS</div>
+        <div>🏆 <span id="cupVal">250</span> | 💎 <span id="gemVal">50</span></div>
     </header>
 
     <div id="brawler-grid" class="grid-container"></div>
 
     <nav class="bottom-nav">
-        <button class="nav-btn" onclick="menuTikla('MARKET')">MARKET</button>
-        <button class="nav-btn" onclick="menuTikla('SAVAŞÇILAR')">SAVAŞÇILAR</button>
-        <button class="nav-btn" onclick="menuTikla('OYNA')">OYNA</button>
+        <button class="nav-btn" onclick="openWindow('marketWindow')">MARKET</button>
+        <button class="nav-btn" onclick="location.reload()">SAVAŞÇILAR</button>
+        <button class="nav-btn play" onclick="startSearch()">OYNA</button>
     </nav>
 
+    <div id="marketWindow" class="overlay">
+        <div class="window">
+            <span class="close-btn" onclick="closeWindow('marketWindow')">×</span>
+            <h2>MARKET</h2>
+            <div style="background:#333; padding:15px; border-radius:10px; margin-bottom:10px;">
+                <p>Mega Kutu</p>
+                <button class="nav-btn" onclick="buyItem(80)">💎 80 AL</button>
+            </div>
+            <p id="marketMsg" style="color:yellow;"></p>
+        </div>
+    </div>
+
+    <div id="playWindow" class="overlay">
+        <div class="window">
+            <h2 id="statusText">OYUNCU ARANIYOR...</h2>
+            <div class="loading-bar"><div id="loadProgress" class="progress"></div></div>
+            <p id="matchMsg" style="margin-top:15px;"></p>
+            <button id="exitMatch" class="nav-btn" style="display:none;" onclick="closeWindow('playWindow')">ÇIK</button>
+        </div>
+    </div>
+
     <script>
-        // Karakter Listesi (Hepsini tek tek yazmana gerek kalmadı!)
-        const names = ["Shelly", "Colt", "Bull", "Brock", "Barley", "Nita", "El Primo", "Poco", "Rosa", "Rico", "Jessie", "Dynamike", "Darryl", "Penny", "Tick", "Carl", "8-Bit", "Jacky", "Gus", "Bo", "Piper", "Pam", "Frank", "Bibi", "Bea", "Emz", "Gale", "Nani", "Colette", "Edgar", "Stu", "Belle", "Grom", "Griff", "Ash", "Lola", "Bonnie", "Sam", "Mandy", "Maisie", "Hank", "Pearl", "Larry & Lawrie", "Angelo", "Berry", "Shade", "Meeple", "Trunk", "Mortis", "Tara", "Gene", "Mr. P", "Max", "Sprout", "Lou", "Byron", "Ruffs", "Squeak", "Buzz", "Fang", "Eve", "Janet", "Otis", "Buster", "Gray", "R-T", "Willow", "Doug", "Chuck", "Charlie", "Mico", "Melodie", "Lily", "Clancy", "Moe", "Juju", "Ollie", "Lumi", "Finx", "Jae-Yong", "Alli", "Mina", "Ziggy", "Gigi", "Glowbert", "Najia", "Spike", "Crow", "Leon", "Sandy", "Surge", "Amber", "Meg", "Chester", "Cordelius", "Kit", "Draco", "Kenji", "Pierce", "Kaze", "Sirius"];
-
-        function getRarity(index) {
-            if (index < 1) return "starting";
-            if (index < 9) return "rare";
-            if (index < 19) return "super-rare";
-            if (index < 48) return "epic";
-            if (index < 86) return "mythic";
-            return "legendary";
-        }
-
+        const names = ["Shelly", "Colt", "Bull", "Brock", "Barley", "Nita", "El Primo", "Poco", "Rosa", "Mortis", "Tara", "Leon", "Spike", "Crow", "Kaze", "Sirius"]; // Listeyi istediğin kadar uzatabilirsin
         const grid = document.getElementById('brawler-grid');
 
-        names.forEach((name, index) => {
-            const rarity = getRarity(index);
+        // Karakterleri Listele
+        names.forEach(name => {
             const card = document.createElement('div');
-            card.className = `brawler-card rarity-${rarity}`;
-            
-            // Resmi temizle: Boşlukları sil ve küçük harf yap
+            card.className = 'brawler-card';
             let cleanName = name.toLowerCase().replace(/[^a-z]/g, "");
-            let imgSrc = `https://cdn-old.brawlstats.com/character-icons/${cleanName}.png`;
-
             card.innerHTML = `
-                <img src="${imgSrc}" onerror="this.src='https://via.placeholder.com/80/444/fff?text=? '">
-                <div style="margin-top:8px; font-size:14px;">${name}</div>
+                <img src="https://cdn-old.brawlstats.com/character-icons/${cleanName}.png" onerror="this.src='https://via.placeholder.com/70?text=👤'">
+                <div style="margin-top:8px; font-size:12px;">${name}</div>
             `;
-            
-            card.onclick = () => alert(name + " seçildi!");
+            card.onclick = () => alert(name + " Seçildi!");
             grid.appendChild(card);
         });
 
-        function menuTikla(sayfa) {
-            if(sayfa === 'OYNA') alert("Savaş başlıyor! Hazırlan...");
-            else if(sayfa === 'MARKET') alert("Market yakında açılacak!");
-            else alert("Zaten Savaşçılar sayfasındasın.");
+        // PENCERE FONKSİYONLARI
+        function openWindow(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeWindow(id) { document.getElementById(id).style.display = 'none'; }
+
+        // MARKET SİSTEMİ
+        let gems = 50;
+        function buyItem(cost) {
+            if (gems >= cost) {
+                gems -= cost;
+                document.getElementById('gemVal').innerText = gems;
+                document.getElementById('marketMsg').innerText = "Satın Alındı!";
+            } else {
+                document.getElementById('marketMsg').innerText = "Yetersiz Elmas! ❌";
+            }
+        }
+
+        // OYNA SİSTEMİ (Eşleşme Simülasyonu)
+        function startSearch() {
+            openWindow('playWindow');
+            document.getElementById('statusText').innerText = "OYUNCU ARANIYOR...";
+            document.getElementById('loadProgress').style.width = '100%';
+            document.getElementById('matchMsg').innerText = "";
+            document.getElementById('exitMatch').style.display = 'none';
+
+            setTimeout(() => {
+                document.getElementById('statusText').innerText = "MAÇ BULUNDU!";
+                document.getElementById('matchMsg').innerText = "Rakip: Mert Efe ⚔️";
+                document.getElementById('exitMatch').style.display = 'inline-block';
+                // Kupa artışı simülasyonu
+                let cups = parseInt(document.getElementById('cupVal').innerText);
+                document.getElementById('cupVal').innerText = cups + 8;
+            }, 3000);
         }
     </script>
 </body>
